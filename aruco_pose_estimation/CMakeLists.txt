@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package( OpenCV REQUIRED )
 
@@ -16,7 +17,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 include_directories( include )
 
 add_library(tag_PE SHARED src/tag_pose_estimation.cpp )
-ament_target_dependencies(tag_PE rclcpp sensor_msgs OpenCV cv_bridge)
+ament_target_dependencies(tag_PE rclcpp sensor_msgs geometry_msgs OpenCV cv_bridge)
 
 add_executable(tag_pose_estimation src/tag_PE_node.cpp)
 target_link_libraries(tag_pose_estimation ${OpenCV_LIBS} tag_PE)

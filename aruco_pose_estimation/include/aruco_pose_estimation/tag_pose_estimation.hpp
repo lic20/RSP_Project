@@ -1,5 +1,6 @@
 #include<rclcpp/rclcpp.hpp>
 #include<sensor_msgs/msg/image.hpp>
+#include<geometry_msgs/msg/transform.hpp>
 #include <opencv2/aruco.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/core/cvstd_wrapper.hpp>
@@ -8,6 +9,7 @@ class image_subscriber : public rclcpp :: Node
     {
     private:
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub;
+        rclcpp::Publisher<geometry_msgs::msg::Transform>::SharedPtr transform_pub;
         //cv::aruco::DetectorParameters detectorParams = cv::aruco::DetectorParameters();
         cv::Ptr<cv::aruco::DetectorParameters> detectorParams = std::make_shared<cv::aruco:: DetectorParameters>();
         //cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);
@@ -24,4 +26,5 @@ class image_subscriber : public rclcpp :: Node
     public:
         image_subscriber(const std::string& name);
         void callback(const sensor_msgs::msg::Image& msg);
+        void publish_pose(const std::vector<cv::Vec3d>& r, const std::vector<cv::Vec3d>& t);
     };

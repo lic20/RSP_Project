@@ -5,12 +5,14 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 #include <aruco_pose_estimation/tag_pose_estimation.hpp>
+#include <math.h>
 using namespace cv;
 
 image_subscriber::image_subscriber(const std::string &name) : Node(name)
 {
     image_sub = create_subscription<sensor_msgs::msg::Image>("/camera/color/image_raw", 10,
                                                              std::bind(&image_subscriber::callback, this, std::placeholders::_1));
+    transform_pub = create_publisher<geometry_msgs::msg::Transform>("/aruco/pose",10);
 }
 
 void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
@@ -31,7 +33,10 @@ void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
         for (int i = 0;i < rvecs.size();i++)
 		{
 			cv::aruco::drawAxis(img, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.05);
+            
+            //std::cout << rvecs[i][0] << " " << rvecs[i][1] << " " << rvecs[i][2]<<std::endl;
 		}
+        image_subscriber::publish_pose(rvecs,tvecs);
 
         cv::imshow("Display Image", img);
         //std::cout<<"1"<<std::endl;
@@ -39,9 +44,29 @@ void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
     else
     {
         cv::imshow("Display Image", img);
-        std::cout<<size(rejected)<<std::endl;
+        //std::cout<<size(rejected)<<std::endl;
     }
         
 
     cv::waitKey(1);
+}
+
+void image_subscriber::publish_pose(const std::vector<cv::Vec3d>& r, const std::vector<cv::Vec3d>& t)
+{
+    geometry_msgs::msg::Transform msg;
+    msg.translation.x = t[0][0];
+    msg.translation.y = t[0][1];
+    msg.translation.z = t[0][2];
+    
+    double theta = sqrt(pow(r[0][0],2)+pow(r[0][1],2)+pow(r[0][2],2));
+    double norm_x = r[0][0]/theta;
+    double norm_y = r[0][1]/theta;
+    double norm_z = r[0][2]/theta;
+
+    msg.rotation.x = norm_x*sin(theta/2);
+    msg.rotation.y = norm_y*sin(theta/2);
+    msg.rotation.z = norm_z*sin(theta/2);
+    msg.rotation.w = cos(theta/2);
+
+    transform_pub->publish(msg);
 }

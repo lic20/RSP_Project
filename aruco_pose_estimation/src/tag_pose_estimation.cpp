@@ -19,6 +19,8 @@ void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
 {
     cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
     Mat img = cv_ptr->image;
+    //std::cout << img.rows <<std::endl;
+    //std::cout << img.cols <<std::endl;
     Mat imgCopy;
 
     cv::aruco::detectMarkers(img, dictionary, corners, ids,detectorParams,rejected);
@@ -29,12 +31,21 @@ void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
         std::vector<cv::Vec3d> rvecs(nMarkers), tvecs(nMarkers);
         // cameraMatrix = cameraMatrix.reshape(1,3);
         // distCoeffs = distCoeffs.reshape(1, 1);
-        cv::aruco::estimatePoseSingleMarkers(corners,0.05,cameraMatrix,distCoeffs,rvecs,tvecs);
+        cv::aruco::estimatePoseSingleMarkers(corners,0.024,cameraMatrix,distCoeffs,rvecs,tvecs);
+        // for (size_t i = 0; i < 3; i++)
+        // {
+        //     std::cout<< cameraMatrix <<std::endl;
+        // }
+        
         for (int i = 0;i < rvecs.size();i++)
 		{
 			cv::aruco::drawAxis(img, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.05);
             
-            //std::cout << rvecs[i][0] << " " << rvecs[i][1] << " " << rvecs[i][2]<<std::endl;
+            std::cout << "x: "<< rvecs[i][0] << " "  << "y: "<< rvecs[i][1] << " "  << "z: "<< rvecs[i][2]<<std::endl;
+            std::cout << "-----------------------------------"<<std::endl;
+            cv::Mat r;
+            cv::Rodrigues(rvecs[i],r);
+            std::cout<< r <<std::endl;
 		}
         image_subscriber::publish_pose(rvecs,tvecs);
 
@@ -54,6 +65,7 @@ void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
 void image_subscriber::publish_pose(const std::vector<cv::Vec3d>& r, const std::vector<cv::Vec3d>& t)
 {
     geometry_msgs::msg::Transform msg;
+
     msg.translation.x = t[0][0];
     msg.translation.y = t[0][1];
     msg.translation.z = t[0][2];

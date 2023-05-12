@@ -13,7 +13,7 @@ find_package(open_manipulator_msgs REQUIRED)
 
 find_package(rosidl_default_generators REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME} "msg/Tmi.msg" DEPENDENCIES geometry_msgs sensor_msgs open_manipulator_msgs)
+rosidl_generate_interfaces(${PROJECT_NAME} "msg/Tmi.msg" "action/RSP.action" DEPENDENCIES geometry_msgs sensor_msgs open_manipulator_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

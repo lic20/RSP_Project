@@ -1,0 +1,8 @@
+#goal
+geometry_msgs/Pose posandori
+---
+#result
+uint8 sucorfail
+---
+#feedback
+string message

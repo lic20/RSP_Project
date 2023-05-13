@@ -1,0 +1,12 @@
+<launch>
+  <node 
+    pkg="robot_state_publisher"
+    exec="robot_state_publisher"
+    output="screen">
+    <param name="robot_description" value="$(command 'xacro $(find-pkg-share open_manipulator_x_description)/urdf/open_manipulator_x.urdf.xacro')"/>
+    <!-- <remap from="/joint_states" to="/world/empty/model/kobuki/joint_state"/> -->
+  </node>
+
+  <node name="rviz" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share open_manipulator_x_description)/rviz/open_manipulator_x.rviz"/>
+
+</launch>

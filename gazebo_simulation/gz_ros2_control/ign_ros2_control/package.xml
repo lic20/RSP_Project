@@ -18,7 +18,7 @@
   <depend>ignition-plugin</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
-  <depend>libyaml_cpp_dev</depend>
+  <depend>yaml-cpp</depend>
   <depend>yaml_cpp_vendor</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>hardware_interface</depend>

@@ -10,6 +10,26 @@ import os
 
 def generate_launch_description():
 
+    map_yaml_file = LaunchConfiguration('map')
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    autostart = LaunchConfiguration('autostart')
+    dir = get_package_share_directory('slam_launch')
+
+    declare_map_yaml_cmd = DeclareLaunchArgument(
+        'map',
+        default_value=os.path.join(
+            dir, 'config', 'map.yaml'),
+        description='Full path to map file to load')
+
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='true',
+        description='Use simulation (Gazebo) clock if true')
+    
+    declare_autostart_cmd = DeclareLaunchArgument(
+        'autostart', default_value='true',
+        description='Automatically startup the nav2 stack')
+
     robot_description_content = Command(
         [   PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
@@ -53,23 +73,24 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file]
     )
 
-    node_nav =  launch.actions.IncludeLaunchDescription(
+    node_nav = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [os.path.join(get_package_share_directory('nav2_bringup'),
-                'launch', 'navigation_launch.py')]))
-    
-    node_slam = launch.actions.IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory('slam_toolbox'),
-                'launch', 'online_async_launch.py')]))
+                'launch', 'bringup_launch.py')]),
+        launch_arguments={'map': map_yaml_file,
+                          'use_sim_time': use_sim_time,
+                          'autostart': autostart,}.items())
+
 
     nodes_to_start = [
+        declare_map_yaml_cmd,
+        declare_use_sim_time_cmd,
+        declare_autostart_cmd,
         robot_state_publisher_node,
         kobuki_node,
         laser_node,
         rviz_node,
         node_nav,
-        node_slam
     ]
 
 

@@ -50,7 +50,7 @@ namespace rsp{
 
 
     auto pose_goal = goal_handle->get_goal()->posandori;
-    pose_goal.position.z = pose_goal.position.z + 0.05;
+    pose_goal.position.z = pose_goal.position.z + 0.01;
 
     open_manipulator_msgs::msg::KinematicsPose kp;
     kp.pose = pose_goal;

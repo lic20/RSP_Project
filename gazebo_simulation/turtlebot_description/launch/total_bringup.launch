@@ -1,0 +1,14 @@
+<launch>
+  <node 
+    pkg="robot_state_publisher"
+    exec="robot_state_publisher"
+    output="screen">
+    <param name="robot_description" value="$(command 'xacro $(find-pkg-share turtlebot_description)/robots/robot_all.urdf.xacro')"/>
+    <remap from="/joint_states" to="/world/zls/model/turtlebot_system/joint_state"/>
+  </node>
+  <node
+    pkg="joint_state_publisher_gui"
+    exec="joint_state_publisher_gui"
+    output="screen"/>
+  
+</launch>

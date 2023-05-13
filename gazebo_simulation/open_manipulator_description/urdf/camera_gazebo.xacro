@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Gazebo Reference macro -->
+  <xacro:macro name="camera_gazebo">
+
+    <xacro:property name="M_PI" value="3.1415926535897931" />
+    <xacro:macro name="RefLink" params="ref">
+      <gazebo reference="${ref}">
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <mu1>30.0</mu1>
+        <mu2>30.0</mu2>
+        <maxVel>1.0</maxVel>
+        <minDepth>0.001</minDepth>
+        <material>Gazebo/DarkGrey</material>
+      </gazebo>
+    </xacro:macro>
+
+    <!-- World -->
+    <gazebo reference="world"/>
+
+    <!-- Link1 -->
+    <xacro:RefLink ref="link1"/>
+
+    <!-- Link2 -->
+    <xacro:RefLink ref="link2"/>
+
+    <!-- Link3 -->
+    <xacro:RefLink ref="link3"/>
+
+    <!-- Link4 -->
+    <xacro:RefLink ref="link4"/>
+
+    <!-- Link5 -->
+    <xacro:RefLink ref="link5"/>
+
+    <!-- gripper_link -->
+    <xacro:RefLink ref="gripper_link"/>
+
+    <!-- gripper_link_sub -->
+    <xacro:RefLink ref="gripper_link_sub"/>
+
+    <!-- end effector link -->
+    <gazebo reference="end_effector_link">
+      <material>Gazebo/Red</material>
+    </gazebo>
+
+
+    <link name="camera_link">
+       <visual>
+          <origin xyz="0 0 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+            <geometry>
+              <mesh filename="file://$(find open_manipulator_description)/meshes/d435.dae" />
+            </geometry>
+        </visual>
+
+        <collision>
+          <origin xyz="0 0 0" rpy="${M_PI/2} 0 ${M_PI/2}"/>
+            <geometry>
+               <mesh filename="file://$(find open_manipulator_description)/meshes/realsense.dae" />
+            </geometry>
+        </collision>
+    </link>
+
+
+    <gazebo>
+      <plugin filename="libignition-gazebo-joint-state-publisher-system.so"
+      name="ignition::gazebo::systems::JointStatePublisher"/>
+
+      <plugin filename="ignition-gazebo-sensors-system"
+        name="ignition::gazebo::systems::Sensors">
+      </plugin>
+    </gazebo>
+
+    
+
+    <gazebo reference="camera_link">
+      <sensor type="camera" name="intel_realsense_d435i">
+        <topic>camera</topic>
+        <update_rate>30.0</update_rate>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+        <ignition_frame_id>camera_link</ignition_frame_id>
+        <camera name="head">
+          <horizontal_fov>1.50098</horizontal_fov>
+          <image>
+            <width>1920</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+  
+  </xacro:macro>
+
+</robot>

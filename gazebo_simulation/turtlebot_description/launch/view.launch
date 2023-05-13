@@ -1,0 +1,15 @@
+<launch>
+  <node 
+    pkg="robot_state_publisher"
+    exec="robot_state_publisher"
+    output="screen">
+    <param name="robot_description" value="$(command 'xacro $(find-pkg-share turtlebot_description)/robots/turtlebot_lidar.urdf.xacro')"/>
+    <!-- <remap from="/joint_states" to="/world/empty/model/kobuki/joint_state"/> -->
+  </node>
+  <node
+    pkg="joint_state_publisher_gui"
+    exec="joint_state_publisher_gui"
+    output="screen"/>
+  
+  <node name="rviz" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share turtlebot_description)/launch/view.rviz"/>
+</launch>

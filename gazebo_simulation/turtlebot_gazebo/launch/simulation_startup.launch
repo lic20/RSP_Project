@@ -1,0 +1,62 @@
+<launch>
+    <arg name="world_file" default="$(find-pkg-share turtlebot_gazebo)/config/my_world.sdf"/>
+    <arg name="topic" default="robot_description"/>
+    <arg name="offset" default="0.1"/>
+    <!-- <arg name="controller_file", default="$(find-pkg-share open_manipulator_description)/config/controller.yaml"/> -->
+
+    <node 
+        pkg="robot_state_publisher"
+        exec="robot_state_publisher"
+        output="screen">
+        <param name="robot_description" value="$(command 'xacro $(find-pkg-share turtlebot_description)/robots/robot_all.urdf.xacro')"/>
+        <remap from="/joint_states" to="/world/zls/model/turtlebot_system/joint_state"/>
+    </node>
+
+    <executable
+        cmd = "ign gazebo $(var world_file) -v4"
+        name = "gazebo"
+        output="screen"/>
+
+    <node
+        pkg="ros_ign_gazebo"
+        name="spawn_model1"
+        exec="create"
+        args="-topic $(var topic) -world zls -z $(var offset)"
+        output="screen">
+    </node>
+
+    <node 
+        pkg="ros_ign_bridge"
+        exec="parameter_bridge"
+        name="bridge1"
+        args="/lidar@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan"
+        output="screen">
+    </node>
+
+    <!-- <node 
+        pkg="ros_ign_bridge"
+        exec="parameter_bridge"
+        name="bridge2"
+        args="/camera@sensor_msgs/msg/Image[ignition.msgs.Image"
+        output="screen">
+    </node> -->
+
+    <node
+        pkg="ros_ign_bridge"
+        exec="parameter_bridge"
+        name="bridge3"
+        args="/world/zls/model/turtlebot_system/joint_state@sensor_msgs/msg/JointState@ignition.msgs.Model"
+        output="screen">
+    </node>
+
+    <node
+        pkg="ros_ign_bridge"
+        exec="parameter_bridge"
+        name="bridge4"
+        args="/model/turtlebot_system/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist"
+        output="screen">
+    </node>
+
+    <!-- <node name="rviz" pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share turtlebot_gazebo)/launch/view.rviz"/> -->
+
+</launch>

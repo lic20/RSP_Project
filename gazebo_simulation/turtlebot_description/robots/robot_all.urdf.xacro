@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<robot name="turtlebot_system" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find turtlebot_description)/urdf/turtlebot_common_library.urdf.xacro" />
+  <xacro:include filename="$(find kobuki_description)/urdf/kobuki.urdf.xacro" />
+  <xacro:include filename="$(find turtlebot_description)/urdf/stacks/hexagons.urdf.xacro"/>
+  <xacro:include filename="$(find turtlebot_description)/urdf/lidar.xacro"/>
+  <xacro:include filename="$(find open_manipulator_description)/urdf/camera_gazebo.xacro"/>
+  <xacro:include filename="$(find open_manipulator_description)/urdf/op_robot.xacro"/>
+  <xacro:include filename="$(find open_manipulator_description)/urdf/joint_control_gazebo.xacro"/>
+  
+  <xacro:kobuki/>
+  <xacro:stack_hexagons parent="base_link"/>
+
+  <xacro:op_robot/>
+  <xacro:camera_gazebo/>
+  <xacro:joints_gazebo/>
+
+  <xacro:rplidar/>
+
+  <joint name="connect_joint" type="fixed">
+        <origin xyz = "0 0 0"/>
+        <parent link="plate_top_link"/>
+        <child link="link1"/>
+  </joint>
+
+</robot>

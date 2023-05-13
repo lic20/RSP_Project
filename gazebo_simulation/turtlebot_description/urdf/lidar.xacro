@@ -1,0 +1,52 @@
+ <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lidar">
+
+    <xacro:macro name="rplidar">
+
+        <link name="laser"/>
+            <!-- <visual>
+                <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+                <geometry>
+                    <mesh filename="file://$(find turtlebot_description)/meshes/HC-SR04.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+            </visual>
+
+            <collision>
+                <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+                <geometry>
+                    <mesh filename="file://$(find turtlebot_description)/meshes/HC-SR04.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+            </collision> -->
+
+        <joint name="lidar_joint" type="fixed">
+            <origin xyz = "0 0 0.1"/>
+            <parent link="plate_middle_link"/>
+            <child link="laser"/>
+        </joint>
+
+        <gazebo reference="laser">
+            <sensor type="gpu_lidar" name="rplidar">
+                <update_rate>100</update_rate>
+                <always_on>1</always_on>
+                <visualize>true</visualize>
+                <topic>lidar</topic>
+                <ignition_frame_id>laser</ignition_frame_id>
+                <lidar>
+                    <scan>
+                        <horizontal>
+                            <samples>720</samples>
+                            <resolution>1</resolution> 
+                            <min_angle>-3.1415926</min_angle>
+                            <max_angle>3.1415926</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.18</min>
+                        <max>12</max>
+                    </range>
+                </lidar>
+            </sensor>
+
+        </gazebo>
+
+    </xacro:macro>
+</robot>

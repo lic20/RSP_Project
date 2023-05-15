@@ -73,7 +73,7 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file]
     )
 
-    node_nav = IncludeLaunchDescription(
+    node_nav = launch.actions.IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [os.path.join(get_package_share_directory('nav2_bringup'),
                 'launch', 'bringup_launch.py')]),

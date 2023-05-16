@@ -54,6 +54,17 @@ void image_subscriber::callback(const sensor_msgs::msg::Image &msg)
     }
     else
     {
+        geometry_msgs::msg::Transform msg;
+        msg.translation.x = -1;
+        msg.translation.y = -1;
+        msg.translation.z = -1;
+        
+        msg.rotation.x = -1;
+        msg.rotation.y = -1;
+        msg.rotation.z = -1;
+        msg.rotation.w = -1;
+
+        transform_pub->publish(msg);
         cv::imshow("Display Image", img);
         //std::cout<<size(rejected)<<std::endl;
     }

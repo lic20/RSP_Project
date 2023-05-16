@@ -14,6 +14,7 @@ namespace rsp{
   public:
     rclcpp::Client<open_manipulator_msgs::srv::SetKinematicsPose>::SharedPtr kins_client;
     rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedPtr gripper_client;
+    rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedPtr gripper_client_joints;
     action_server( const std::string& name );
 
     rclcpp_action::GoalResponse
@@ -31,21 +32,22 @@ namespace rsp{
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr subscription_;
     sensor_msgs::msg::JointState curr_joint;
     int flag;
+    int flag_gri;
 
     void topic_callback(const sensor_msgs::msg::JointState& joints);
 
     void kins_client_callback(const rclcpp::Client<open_manipulator_msgs::srv::SetKinematicsPose>::SharedFuture future);
 
     void gripper_client_callback(const rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedFuture future);
+    void gripper_client_drop_callback(const rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedFuture future);
 
   };
 
   class action_client : public rclcpp::Node {
   private:
     rclcpp_action::Client<rsp_msgs::action::RSP>::SharedPtr client;
-    
   public:
-    
+    // int test;
     action_client( const std::string& name );
 
     void call( const geometry_msgs::msg::Pose& command );

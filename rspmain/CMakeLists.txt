@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(rsp_msgs)
+project(rspmain)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,13 +7,26 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(pnpm REQUIRED)
+find_package(base2tag REQUIRED)
+find_package(rsp_msgs REQUIRED)
 find_package(open_manipulator_msgs REQUIRED)
 
-find_package(rosidl_default_generators REQUIRED)
+include_directories( include )
 
-rosidl_generate_interfaces(${PROJECT_NAME} "msg/Tmi.msg" "action/RSP.action" "srv/GetTrans.srv" DEPENDENCIES geometry_msgs sensor_msgs open_manipulator_msgs)
+add_library( rspmain SHARED src/rspmain.cpp )
+ament_target_dependencies( rspmain rclcpp rclcpp_action pnpm
+                            base2tag rsp_msgs open_manipulator_msgs)
+
+add_executable( main src/mainexec.cpp )
+target_link_libraries( main rspmain )
+ament_target_dependencies( main rclcpp rclcpp_action pnpm base2tag rsp_msgs open_manipulator_msgs)
+
+install( DIRECTORY include/ DESTINATION include )
+install( TARGETS rspmain LIBRARY DESTINATION lib )
+install( TARGETS main DESTINATION lib/${PROJECT_NAME} )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

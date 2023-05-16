@@ -24,7 +24,7 @@ namespace rsp{
 
     //   return rclcpp_action::GoalResponse::REJECT;
     flag = 1;
-    
+    flag_gri = 0;
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     
   }
@@ -40,15 +40,46 @@ namespace rsp{
   action_server::accept_goal
   (const std::shared_ptr<rclcpp_action::ServerGoalHandle<rsp_msgs::action::RSP>>
    goal_handle ){
+
+    
     
     kins_client =  this->create_client<open_manipulator_msgs::srv::SetKinematicsPose>("goal_task_space_path");
-    
-
     std::cout << "kins_client and gripper client created" << std::endl;
     kins_client->wait_for_service();
     std::cout << "kins_client is ready" << std::endl;
 
+    // Open Gripper & create gripper clients
+    gripper_client = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
+    gripper_client->wait_for_service();
 
+    gripper_client_joints = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_joint_space_path");
+    gripper_client_joints->wait_for_service();
+    std::cout << "gripper clients are ready" << std::endl;
+
+    open_manipulator_msgs::msg::JointPosition jp;
+    jp.joint_name.push_back("joint1");
+    jp.joint_name.push_back("joint2");
+    jp.joint_name.push_back("joint3");
+    jp.joint_name.push_back("joint4");
+    jp.joint_name.push_back("gripper");
+
+    // Set to Home Position
+    jp.position.push_back(0.002);
+    jp.position.push_back(-1.049);
+    jp.position.push_back(0.391);
+    jp.position.push_back(0.704);
+    jp.position.push_back(0.01);
+
+    jp.max_accelerations_scaling_factor = 0.5;
+    jp.max_velocity_scaling_factor = 0.5;
+
+    auto request_gri = std::make_shared<open_manipulator_msgs::srv::SetJointPosition::Request>();
+    request_gri->path_time = 2.0;
+    request_gri->joint_position = jp;
+
+    gripper_client->async_send_request(request_gri, std::bind(&action_server::gripper_client_drop_callback, this, std::placeholders::_1));
+
+    // Play with Kinematics
     auto pose_goal = goal_handle->get_goal()->posandori;
     pose_goal.position.z = pose_goal.position.z + 0.01;
 
@@ -90,7 +121,65 @@ namespace rsp{
     auto response = future.get();
     std::this_thread::sleep_for(5000ms);
     std::cout << response->is_planned << std::endl;
+
+    open_manipulator_msgs::msg::JointPosition jp;
+    jp.joint_name.push_back("joint1");
+    jp.joint_name.push_back("joint2");
+    jp.joint_name.push_back("joint3");
+    jp.joint_name.push_back("joint4");
+    jp.joint_name.push_back("gripper");
+
+    // Set to Home Position
+    jp.position.push_back(-1.246);
+    jp.position.push_back(-0.383);
+    jp.position.push_back(0.187);
+    jp.position.push_back(1.744);
+    jp.position.push_back(0.01);
+
+    jp.max_accelerations_scaling_factor = 0.5;
+    jp.max_velocity_scaling_factor = 0.5;
+
+    auto request_gri = std::make_shared<open_manipulator_msgs::srv::SetJointPosition::Request>();
+    request_gri->path_time = 2.0;
+    request_gri->joint_position = jp;
+     gripper_client->async_send_request(request_gri, std::bind(&action_server::gripper_client_drop_callback, this, std::placeholders::_1));
   }
+
+  void action_server::gripper_client_drop_callback(const rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedFuture future) {
+    std::cout << "gripper Dropped joints and tool" << std::endl;
+    auto response = future.get();
+    std::this_thread::sleep_for(2000ms);
+    std::cout << response->is_planned << std::endl;
+
+    flag_gri = flag_gri +  1;
+    if (flag_gri == 2) {
+      open_manipulator_msgs::msg::JointPosition jp;
+      jp.joint_name.push_back("joint1");
+      jp.joint_name.push_back("joint2");
+      jp.joint_name.push_back("joint3");
+      jp.joint_name.push_back("joint4");
+      jp.joint_name.push_back("gripper");
+
+      // Set to Home Position
+      jp.position.push_back(-1.246);
+      jp.position.push_back(-0.383);
+      jp.position.push_back(0.187);
+      jp.position.push_back(1.744);
+      jp.position.push_back(0.01);
+
+      jp.max_accelerations_scaling_factor = 0.5;
+      jp.max_velocity_scaling_factor = 0.5;
+
+      auto request_gri = std::make_shared<open_manipulator_msgs::srv::SetJointPosition::Request>();
+      request_gri->path_time = 5.0;
+      request_gri->joint_position = jp;
+      
+      gripper_client_joints->async_send_request(request_gri, std::bind(&action_server::gripper_client_callback, this, std::placeholders::_1));
+    }
+
+  }
+
+  
 
   void action_server::topic_callback(const sensor_msgs::msg::JointState& joints){
     // std::cout << "Gripper Position:" << std::endl;
@@ -104,9 +193,9 @@ namespace rsp{
     // std::cout << curr_joint.position[4] << std::endl;
 
     if (flag) {
-      gripper_client = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
-      gripper_client->wait_for_service();
-      std::cout << "gripper_client is ready" << std::endl;
+      // gripper_client = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
+      // gripper_client->wait_for_service();
+      // std::cout << "gripper_client is ready" << std::endl;
 
       open_manipulator_msgs::msg::JointPosition jp;
       jp.joint_name.push_back("joint1");
@@ -126,10 +215,10 @@ namespace rsp{
       jp.max_velocity_scaling_factor = 0.5;
 
       auto request = std::make_shared<open_manipulator_msgs::srv::SetJointPosition::Request>();
-      request->path_time = 5.0;
+      request->path_time = 2.0;
       request->joint_position = jp;
 
-      gripper_client->async_send_request(request, std::bind(&action_server::gripper_client_callback, this, std::placeholders::_1));
+      gripper_client->async_send_request(request, std::bind(&action_server::gripper_client_drop_callback, this, std::placeholders::_1));
 
       flag = 0;
     }
@@ -143,10 +232,11 @@ namespace rsp{
       // std::cout << "action client created" << std::endl;
     client->wait_for_action_server();
     // std::cout << "action client got a server" << std::endl;
+    // test = 17;
   }
 
   void action_client::call( const geometry_msgs::msg::Pose& command ){
-
+    std::cout << "client called" << std::endl;
     rsp_msgs::action::RSP::Goal goal;
     goal.posandori = command;
 

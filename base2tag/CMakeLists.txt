@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(pnpm)
+project(base2tag)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,33 +7,28 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rsp_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rclcpp_action REQUIRED)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+find_package(rsp_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(open_manipulator_msgs REQUIRED)
-# find_package(open_manipulator_x_controller REQUIRED)
 
 include_directories( include )
+include_directories( /usr/include/eigen3/Eigen)
 
-add_library( pnpm SHARED src/pnpm.cpp )
-ament_target_dependencies( pnpm rclcpp rclcpp_action open_manipulator_msgs
-                            rsp_msgs sensor_msgs)
+add_library( base2tag_srv SHARED src/base2tag_srv.cpp )
+ament_target_dependencies( base2tag_srv rclcpp open_manipulator_msgs
+                            rsp_msgs geometry_msgs Eigen3)
 
-add_executable( server src/server.cpp )
-target_link_libraries( server pnpm )
-ament_target_dependencies( server rclcpp rclcpp_action rsp_msgs )
-
-add_executable( client src/client.cpp )
-target_link_libraries( client pnpm )
-ament_target_dependencies( client rclcpp rclcpp_action rsp_msgs )
+add_executable( base2tag_server src/server_node.cpp )
+target_link_libraries( base2tag_server base2tag_srv)
+ament_target_dependencies( base2tag_server rclcpp open_manipulator_msgs rsp_msgs geometry_msgs Eigen3 )
 
 install( DIRECTORY include/ DESTINATION include )
-install( TARGETS pnpm LIBRARY DESTINATION lib )
-install( TARGETS server client DESTINATION lib/${PROJECT_NAME} )
-
-ament_export_include_directories(include)
-ament_export_libraries(pnpm)
+install( TARGETS base2tag_srv LIBRARY DESTINATION lib )
+install( TARGETS base2tag_server DESTINATION lib/${PROJECT_NAME} )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

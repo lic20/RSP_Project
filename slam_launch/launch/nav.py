@@ -1,7 +1,7 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
-from launch_ros.substitutions import FindPackageShare, LaunchConfiguration
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration
+from launch_ros.substitutions import FindPackageShare
 import launch.actions
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -24,7 +24,7 @@ def generate_launch_description():
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
         'use_sim_time',
-        default_value='true',
+        default_value='false',
         description='Use simulation (Gazebo) clock if true')
     
     declare_autostart_cmd = DeclareLaunchArgument(

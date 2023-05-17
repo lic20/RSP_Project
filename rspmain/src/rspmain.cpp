@@ -28,7 +28,7 @@ namespace rsp{
     jp.position.push_back(-0.003);
     jp.position.push_back(-1.043);
     jp.position.push_back(0.402);
-    jp.position.push_back(1.328);
+    jp.position.push_back(1.263);
     jp.position.push_back(0.01);
 
     jp.max_accelerations_scaling_factor = 0.5;

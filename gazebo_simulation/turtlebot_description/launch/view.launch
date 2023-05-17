@@ -4,7 +4,7 @@
     exec="robot_state_publisher"
     output="screen">
     <param name="robot_description" value="$(command 'xacro $(find-pkg-share turtlebot_description)/robots/turtlebot_lidar.urdf.xacro')"/>
-    <!-- <remap from="/joint_states" to="/world/empty/model/kobuki/joint_state"/> -->
+    
   </node>
   <node
     pkg="joint_state_publisher_gui"
